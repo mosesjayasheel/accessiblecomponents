@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Accessible Component Patterns</title>
+  <style>
+    :root {
+      --ink: #1b1f24;
+      --bg: #fff;
+      --muted: #4a5560;
+      --accent: #0b57d0;
+      --on: #fff;
+      --line: #8b96a1;
+      --err: #b3261e
+    }
+
+    @media (prefers-color-scheme:dark) {
+      :root {
+        --ink: #e8edf2;
+        --bg: #12161b;
+        --muted: #aab4bf;
+        --accent: #8ab4f8;
+        --on: #12161b;
+        --line: #7d8894;
+        --err: #ff8a80
+      }
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    body {
+      margin: 0;
+      font: 1.0625rem/1.6 system-ui, sans-serif;
+      color: var(--ink);
+      background: var(--bg)
+    }
+
+    button,
+    input {
+      font: inherit
+    }
+
+    :focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 2px
+    }
+
+    .skip {
+      position: absolute;
+      left: .5rem;
+      top: -4rem;
+      background: var(--bg);
+      padding: .5rem 1rem;
+      border: 2px solid var(--accent)
+    }
+
+    .skip:focus {
+      top: .5rem
+    }
+
+    header,
+    main {
+      max-width: 46rem;
+      margin: 0 auto;
+      padding: 1rem
+    }
+
+    section {
+      margin: 2rem 0;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line)
+    }
+
+    button {
+      cursor: pointer;
+      border: 2px solid var(--accent);
+      background: var(--accent);
+      color: var(--on);
+      padding: .45rem 1rem;
+      border-radius: 4px
+    }
+
+    button.alt {
+      background: transparent;
+      color: var(--ink)
+    }
+
+    ul.menu {
+      list-style: none;
+      margin: .5rem 0 0;
+      padding: .5rem 1rem;
+      border: 1px solid var(--line)
+    }
+
+    [role=tablist] {
+      display: flex;
+      gap: .25rem;
+      border-bottom: 2px solid var(--line)
+    }
+
+    [role=tab] {
+      background: transparent;
+      color: var(--ink);
+      border: 2px solid transparent;
+      border-radius: 4px 4px 0 0
+    }
+
+    [role=tab][aria-selected=true] {
+      border-color: var(--accent);
+      border-bottom-color: var(--bg);
+      font-weight: 600
+    }
+
+    dialog {
+      max-width: 28rem;
+      border: 2px solid var(--accent);
+      border-radius: 6px;
+      background: var(--bg);
+      color: var(--ink)
+    }
+
+    dialog::backdrop {
+      background: rgba(0, 0, 0, .6)
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-top: 1rem
+    }
+
+    input {
+      width: 100%;
+      max-width: 24rem;
+      padding: .5rem;
+      border: 2px solid var(--line);
+      background: var(--bg);
+      color: var(--ink);
+      border-radius: 4px
+    }
+
+    input[aria-invalid=true] {
+      border-color: var(--err)
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: .9rem;
+      margin: .1rem 0
+    }
+
+    .err {
+      color: var(--err);
+      margin: .1rem 0;
+      min-height: 0
+    }
+
+    #summary {
+      border: 2px solid var(--err);
+      padding: .5rem 1rem;
+      margin: 1rem 0
+    }
+
+    @media (prefers-reduced-motion:reduce) {
+      * {
+        scroll-behavior: auto !important;
+        transition: none !important
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="skip" href="#main">Skip to main content</a>
+  <header>
+    <h1>Accessible component patterns</h1>
+    <nav aria-label="Primary">
+      <button id="menu-btn" aria-expanded="false" aria-controls="menu-list">Menu</button>
+      <ul class="menu" id="menu-list" hidden>
+        <li><a href="#tabs-h">Tabs</a></li>
+        <li><a href="#dialog-h">Dialog</a></li>
+        <li><a href="#form-h">Form</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main id="main">
+    <section aria-labelledby="tabs-h">
+      <h2 id="tabs-h">Tabs</h2>
+      <div role="tablist" aria-label="Pattern notes">
+        <button role="tab" id="t1" aria-selected="true" aria-controls="p1">Native first</button>
+        <button role="tab" id="t2" aria-selected="false" aria-controls="p2" tabindex="-1">Keyboard</button>
+        <button role="tab" id="t3" aria-selected="false" aria-controls="p3" tabindex="-1">Testing</button>
+      </div>
+      <div role="tabpanel" id="p1" aria-labelledby="t1" tabindex="0">
+        <p>Use a real button or link before reaching for ARIA. ARIA only adds meaning; it adds no behavior.</p>
+      </div>
+      <div role="tabpanel" id="p2" aria-labelledby="t2" tabindex="0" hidden>
+        <p>Arrow keys move between tabs, Home and End jump to the first and last, and Tab moves into the panel.</p>
+      </div>
+      <div role="tabpanel" id="p3" aria-labelledby="t3" tabindex="0" hidden>
+        <p>Check with keyboard only, then NVDA or VoiceOver, then run axe.</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="dialog-h">
+      <h2 id="dialog-h">Dialog</h2>
+      <button id="open-dlg">Open dialog</button>
+      <dialog id="dlg" aria-labelledby="dlg-h">
+        <h3 id="dlg-h">Save changes?</h3>
+        <p>The native dialog traps focus, closes on Escape, and returns focus to the button that opened it.</p>
+        <button id="close-dlg" class="alt">Close</button>
+      </dialog>
+    </section>
+
+    <section aria-labelledby="form-h">
+      <h2 id="form-h">Sign-up form</h2>
+      <div id="summary" tabindex="-1" hidden></div>
+      <form id="signup" novalidate>
+        <label for="name">Full name</label>
+        <input id="name" name="name" autocomplete="name" aria-describedby="name-err" aria-invalid="false">
+        <p class="err" id="name-err"></p>
+        <label for="email">Email</label>
+        <p class="hint" id="email-hint">We only use this to confirm your account.</p>
+        <input id="email" name="email" type="email" autocomplete="email" aria-describedby="email-hint email-err"
+          aria-invalid="false">
+        <p class="err" id="email-err"></p>
+        <p><button type="submit">Create account</button></p>
+      </form>
+      <p id="status" role="status"></p>
+    </section>
+  </main>
+  <script>
+    const $ = s => document.querySelector(s);
+    const mb = $('#menu-btn'), ml = $('#menu-list');
+    mb.addEventListener('click', () => {const open = mb.getAttribute('aria-expanded') === 'true'; mb.setAttribute('aria-expanded', String(!open)); ml.hidden = open;});
+    document.addEventListener('keydown', e => {if (e.key === 'Escape' && !ml.hidden) {ml.hidden = true; mb.setAttribute('aria-expanded', 'false'); mb.focus();} });
+
+    const tabs = [...document.querySelectorAll('[role=tab]')];
+    function pick(t) {tabs.forEach(x => {const on = x === t; x.setAttribute('aria-selected', String(on)); x.tabIndex = on ? 0 : -1; $('#' + x.getAttribute('aria-controls')).hidden = !on;}); t.focus();}
+    tabs.forEach((t, i) => {
+      t.addEventListener('click', () => pick(t));
+      t.addEventListener('keydown', e => {
+        const k = {ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1}[e.key];
+        if (k === undefined) return;
+        e.preventDefault(); pick(tabs[(k + tabs.length) % tabs.length]);
+      });
+    });
+
+    const dlg = $('#dlg');
+    $('#open-dlg').addEventListener('click', () => dlg.showModal());
+    $('#close-dlg').addEventListener('click', () => dlg.close());
+
+    const rules = {
+      name: v => v.trim() ? '' : 'Enter your full name.',
+      email: v => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v) ? '' : 'Enter an email address like name@example.com.'
+    };
+    $('#signup').addEventListener('submit', e => {
+      e.preventDefault(); $('#status').textContent = '';
+      const errs = [];
+      for (const id in rules) {
+        const msg = rules[id]($('#' + id).value);
+        $('#' + id + '-err').textContent = msg;
+        $('#' + id).setAttribute('aria-invalid', msg ? 'true' : 'false');
+        if (msg) errs.push([id, msg]);
+      }
+      const sum = $('#summary');
+      if (errs.length) {
+        sum.innerHTML = '<h3>Fix ' + errs.length + (errs.length > 1 ? ' problems' : ' problem') + ' to continue</h3><ul>' + errs.map(([id, m]) => '<li><a href="#' + id + '">' + m + '</a></li>').join('') + '</ul>';
+        sum.hidden = false; sum.focus();
+      } else {
+        sum.hidden = true; $('#status').textContent = 'Account created.';
+      }
+    });
+  </script>
+</body>
+
+</html>
